@@ -19,5 +19,6 @@ npm init -y
 Install dependencies
 
 ```zsh
-npm i @notionhq/client dotenv express
+npm i express socket.io moment
+npm i nodemon -D
 ```
