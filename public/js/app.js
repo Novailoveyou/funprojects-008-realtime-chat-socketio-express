@@ -1,12 +1,8 @@
 const VendorsCtrl = (() => {
-  const initSocketIo = () => io()
+  const initSocketIo = io()
 
-  const init = () => {
-    initSocketIo()
-  }
   return {
-    initSocketIo,
-    init
+    initSocketIo
   }
 })()
 
@@ -20,7 +16,7 @@ const UICtrl = (() => {
     }
   }
 
-  const socket = VendorsCtrl.initSocketIo()
+  const socket = VendorsCtrl.initSocketIo
 
   const { chatForm, chatMsgs, msgInpt } = getSelectors()
 
@@ -39,8 +35,7 @@ const UICtrl = (() => {
     chatMsgs.appendChild(div)
   }
 
-  const initEvtListeners = () => {
-    // Message submit
+  const msgSubmit = () => {
     chatForm.addEventListener('submit', e => {
       e.preventDefault()
 
@@ -50,6 +45,10 @@ const UICtrl = (() => {
       // Emit message to server
       socket.emit('chatMessage', msg)
     })
+  }
+
+  const initEvtListeners = () => {
+    msgSubmit()
   }
 
   const scrollToBottom = el => (el.scrollTop = el.scrollHeight)
@@ -63,7 +62,7 @@ const UICtrl = (() => {
 })()
 
 const SocketCtrl = (() => {
-  const socket = VendorsCtrl.initSocketIo()
+  const socket = VendorsCtrl.initSocketIo
 
   const { showMsg, getSelectors, scrollToBottom } = UICtrl
   const { chatMsgs } = getSelectors()
@@ -71,7 +70,6 @@ const SocketCtrl = (() => {
   const listenToMsgFromServer = () => {
     // Message from server
     socket.on('message', msg => {
-      console.log('test')
       showMsg(msg)
 
       // Scroll down
@@ -89,7 +87,7 @@ const SocketCtrl = (() => {
   }
 })()
 
-const App = ((UICtrl, SocketCtrl) => {
+const App = ((VendorsCtrl, UICtrl, SocketCtrl) => {
   const init = () => {
     SocketCtrl.init()
     UICtrl.initEvtListeners()
@@ -98,6 +96,6 @@ const App = ((UICtrl, SocketCtrl) => {
   return {
     init
   }
-})(UICtrl, SocketCtrl)
+})(VendorsCtrl, UICtrl, SocketCtrl)
 
 App.init()
