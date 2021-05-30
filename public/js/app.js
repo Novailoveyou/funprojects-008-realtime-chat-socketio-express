@@ -104,7 +104,6 @@ const SocketCtrl = (() => {
 
   const listenToMsgFromServer = () => {
     socket.on('message', msg => {
-      console.log(msg)
       showMsg(msg)
 
       // Scroll down
