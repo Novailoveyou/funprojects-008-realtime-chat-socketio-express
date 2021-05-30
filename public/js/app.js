@@ -6,6 +6,20 @@ const VendorsCtrl = (() => {
   }
 })()
 
+const DataCtrl = (() => {
+  const getUrlParams = () => {
+    const urlParams = Qs.parse(location.search, {
+      ignoreQueryPrefix: true
+    })
+
+    return urlParams
+  }
+
+  return {
+    getUrlParams
+  }
+})()
+
 const UICtrl = (() => {
   // UI Selectors
   const getSelectors = () => {
@@ -71,8 +85,9 @@ const SocketCtrl = (() => {
   const { showMsg, getSelectors, scrollToBottom } = UICtrl
   const { chatMsgs } = getSelectors()
 
+  const urlParams = DataCtrl.getUrlParams()
+
   const listenToMsgFromServer = () => {
-    // Message from server
     socket.on('message', msg => {
       console.log(msg)
       showMsg(msg)
@@ -82,8 +97,13 @@ const SocketCtrl = (() => {
     })
   }
 
+  const joinChatRoom = () => {
+    socket.emit('joinRoom', urlParams)
+  }
+
   const init = () => {
-    return listenToMsgFromServer()
+    listenToMsgFromServer()
+    joinChatRoom()
   }
 
   return {
