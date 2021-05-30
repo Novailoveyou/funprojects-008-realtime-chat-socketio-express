@@ -21,11 +21,11 @@ const UICtrl = (() => {
   const { chatForm, chatMsgs, msgInpt } = getSelectors()
 
   // Show message in DOM
-  const showMsg = msg => {
+  const showMsg = ({ username, time, text }) => {
     const body = /* html */ `
-      <p class="meta">Brad <span>9:12pm</span></p>
+      <p class="meta">${username} <span>${time}</span></p>
       <p class="text">
-        ${msg}
+        ${text}
       </p>
     `
 
@@ -44,6 +44,10 @@ const UICtrl = (() => {
 
       // Emit message to server
       socket.emit('chatMessage', msg)
+
+      // Clear input
+      msgInpt.value = ''
+      msgInpt.focus()
     })
   }
 
@@ -70,6 +74,7 @@ const SocketCtrl = (() => {
   const listenToMsgFromServer = () => {
     // Message from server
     socket.on('message', msg => {
+      console.log(msg)
       showMsg(msg)
 
       // Scroll down
