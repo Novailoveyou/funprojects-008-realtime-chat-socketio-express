@@ -26,13 +26,15 @@ const UICtrl = (() => {
     return {
       chatForm: document.getElementById('chat-form'),
       chatMsgs: document.querySelector('.chat-messages'),
-      msgInpt: document.getElementById('msg')
+      msgInpt: document.getElementById('msg'),
+      roomName: document.getElementById('room-name'),
+      userList: document.getElementById('users')
     }
   }
 
   const socket = VendorsCtrl.initSocketIo
 
-  const { chatForm, chatMsgs, msgInpt } = getSelectors()
+  const { chatForm, chatMsgs, msgInpt, roomName, userList } = getSelectors()
 
   // Show message in DOM
   const showMsg = ({ username, time, text }) => {
@@ -65,6 +67,16 @@ const UICtrl = (() => {
     })
   }
 
+  const showRoomName = room => {
+    roomName.innerText = room
+  }
+
+  const showUserNames = users => {
+    userList.innerHTML = /* html */ `
+      ${users.map(user => /* html */ `<li>${user.username}</li>`).join('')}
+    `
+  }
+
   const initEvtListeners = () => {
     msgSubmit()
   }
@@ -75,14 +87,17 @@ const UICtrl = (() => {
     getSelectors,
     showMsg,
     initEvtListeners,
-    scrollToBottom
+    scrollToBottom,
+    showRoomName,
+    showUserNames
   }
 })()
 
 const SocketCtrl = (() => {
   const socket = VendorsCtrl.initSocketIo
 
-  const { showMsg, getSelectors, scrollToBottom } = UICtrl
+  const { showMsg, getSelectors, scrollToBottom, showRoomName, showUserNames } =
+    UICtrl
   const { chatMsgs } = getSelectors()
 
   const urlParams = DataCtrl.getUrlParams()
@@ -101,9 +116,17 @@ const SocketCtrl = (() => {
     socket.emit('joinRoom', urlParams)
   }
 
+  const getRoomAndUsers = () => {
+    socket.on('roomUsers', ({ room, users }) => {
+      showRoomName(room)
+      showUserNames(users)
+    })
+  }
+
   const init = () => {
     listenToMsgFromServer()
     joinChatRoom()
+    getRoomAndUsers()
   }
 
   return {

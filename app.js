@@ -2,7 +2,12 @@ const http = require('http')
 const express = require('express')
 const socketio = require('socket.io')
 const formatMessage = require('./utils/messages')
-const { userJoin, getCurrentUser, userLeave } = require('./utils/users')
+const {
+  userJoin,
+  getCurrentUser,
+  userLeave,
+  getRoomUsers
+} = require('./utils/users')
 
 const app = express()
 const server = http.createServer(app)
@@ -30,6 +35,12 @@ io.on('connection', socket => {
         'message',
         formatMessage(botName, `${user.username} has joined the chat`)
       ) // emit to all clients expect client thats connection
+
+    // Send users and room info
+    io.to(user.room).emit('roomUsers', {
+      room: user.room,
+      users: getRoomUsers(user.room)
+    })
   })
 
   // Listen for chatMessage
@@ -43,11 +54,18 @@ io.on('connection', socket => {
   socket.on('disconnect', () => {
     const user = userLeave(socket.id)
 
-    user &&
+    if (user) {
       io.emit(
         'message',
         formatMessage(botName, `${user.username} has left the chat`)
       ) // emit to all clients
+
+      // Send users and room info
+      io.to(user.room).emit('roomUsers', {
+        room: user.room,
+        users: getRoomUsers(user.room)
+      })
+    }
   })
 })
 
